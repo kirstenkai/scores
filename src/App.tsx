@@ -1,26 +1,53 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from "react";
+import "./App.css";
+import { getMatches } from "./api";
+import { MatchesModel } from "./constants/models";
+import Layout from "./components/Layout";
+import MTable from "./components/MTable";
+import MatchDetail from "./components/MatchDetail";
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+	const [matches, setMatches] = useState<Array<any>>([]);
+	const [open, setOpen] = useState(false);
+	// pass matches index to setModalInfo
+	const [modalInfo, setModalInfo] = useState<MatchesModel | {}>({});
+
+	const toggleDrawer = (newOpen: boolean, matchInfo: MatchesModel) => () => {
+		setOpen(newOpen);
+		addModalInfo(matchInfo);
+	};
+
+	const addModalInfo = (matchObj: MatchesModel) => {
+		setModalInfo(matchObj);
+	};
+
+	useEffect(() => {
+		fetchMatches();
+	}, []);
+
+	const fetchMatches = async () => {
+		const matchesResult = await getMatches();
+		setMatches(matchesResult);
+	};
+
+	matches.map((match: MatchesModel) => {
+		return match;
+	});
+
+	return (
+		<>
+			<Layout>
+				<MTable matches={matches} toggleDrawer={toggleDrawer} />
+				{open ? (
+					<MatchDetail
+						modalInfo={modalInfo}
+						open={open}
+						toggleDrawer={toggleDrawer}
+					/>
+				) : null}
+			</Layout>
+		</>
+	);
 }
 
 export default App;
